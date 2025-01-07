@@ -10,7 +10,7 @@ Redis的底层使用C语言编写的，是基于内存进行存储的，支持 k
 
 java 通过中间件调用
 
-基于key-value 形式的数据字典，结构非常简单，没有数据表的概念，直接用键值对的形式完成数据的管理，Redis支持5中数据类型：
+基于key-value 形式的数据字典，结构非常简单，没有数据表的概念，直接用键值对的形式完成数据的管理，Redis支持5种数据类型：
 
 - 字符串
 - 列表 类似List
@@ -20,7 +20,7 @@ java 通过中间件调用
 
 {
 
-​    key:vale
+​    key:value
 
 ​    key:{
 
@@ -99,7 +99,7 @@ commons-pool2
 
 lombok
 
-spring-boot-starter-web web其实和事springMVC，暂时这样理解
+spring-boot-starter-web web其实是springMVC，暂时这样理解
 
 3.创建实例类
 
