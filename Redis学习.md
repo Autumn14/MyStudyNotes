@@ -24,9 +24,9 @@ java 通过中间件调用
 
 ​    key:{
 
-​        key:value
+​        	key:value
 
-​        }
+​            }
 
 }
 
@@ -93,13 +93,13 @@ redis-cli.exe -h 127.0.0.1 -p 6379
 
 2.pom.xml
 
-spring-boot-starter-data-redis
+- spring-boot-starter-data-redis
 
-commons-pool2
+- commons-pool2
 
-lombok
+- lombok
 
-spring-boot-starter-web web其实是springMVC，暂时这样理解
+- spring-boot-starter-web web  其实是springMVC，暂时这样理解
 
 3.创建实例类
 
@@ -156,7 +156,7 @@ redisTemplate.hasKey(key);//false表示成功，因为已经把key删除掉了
 
 **字符串**
 
-```
+```java
 redisTemplate.opsForValue.set(key,value)
 (String)redisTemplate.opsFoeValue.get(key)
 ```
@@ -165,7 +165,7 @@ redisTemplate.opsForValue.set(key,value)
 
 **列表**
 
-```
+```java
 List<String>
 ListOperations<String,String> a = redisTemplate.opsForList();
 //像一个管道，可以从左边加，也可以从右边加
@@ -179,7 +179,7 @@ List<String> b = a.range("list",0,2);
 
 **集合**
 
-```
+```java
 Set<String>
 SetOperationsredis<String,String> a = redisTemplate.opsForSet();
 a.add("set","value1");
@@ -195,7 +195,7 @@ Set<String> b = a.members("set");
 
 **有序集合**
 
-```
+```java
 Set<String>
 ZSetOperationsredis<String,String> a = redisTemplate.opsForZSet();
 a.add("zset","value1",1);
@@ -207,7 +207,7 @@ Set<String> b = a.range("zset",0,2);
 
 **哈希**
 
-```
+```java
 //HashMap key value
 //HashOperations key hashkey value 
 //key是每一组数据的id 

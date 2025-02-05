@@ -371,7 +371,7 @@ TreeMap 的底层是基于红黑树（Red - Black Tree）实现的。
 
 例如，在 Java 的`TreeMap`和`TreeSet`集合类中，底层数据结构就是红黑树，用于存储键 - 值对或者元素集合，并且能够保证元素按照一定的顺序排列，方便快速查找和范围查询。
 
-## 反射
+## 7.反射
 
 **反射：将类的属性和方法映射成相应的类。**
 
@@ -391,5 +391,109 @@ TreeMap 的底层是基于红黑树（Red - Black Tree）实现的。
 - 调用 `Class` 对象的 `getMethod(String name, Class<?>... parameterTypes)` **获取方法对象**
 - 调用方法对象 `Method` 的 `invoke(Object obj, Object... args)` ，**调用对象上相应方法**
 
+## 8.函数式接口
 
+Lambda 表达式通常与函数式接口一起使用。Java 8 提供了许多内置的函数式接口，例如：
+
+- `Runnable`: 无参数，无返回值。
+
+  - **作用**：`Runnable` 接口表示一个可执行的任务，它没有参数，也没有返回值。通常用于创建线程，当线程启动时会执行 `run` 方法中的代码逻辑。
+
+  - ```java
+    // 传统方式：匿名内部类
+    Runnable r1 = new Runnable() {
+        @Override
+        public void run() {
+            System.out.println("Hello, World!");
+        }
+    };
+    
+    // Lambda 表达式
+    Runnable r2 = () -> System.out.println("Hello, World!");
+    
+    r1.run(); // 输出: Hello, World!
+    r2.run(); // 输出: Hello, World!
+    ```
+
+- `Consumer<T>`: 接受一个参数，无返回值。
+
+  - **作用**：`Consumer<T>` 接口表示接受一个输入参数 `T`，并且不返回任何结果的操作。它通常用于对输入的数据进行消费处理，比如打印、存储等。
+
+  - ```java
+    // 传统方式：匿名内部类
+    Consumer<String> c1 = new Consumer<String>() {
+        @Override
+        public void accept(String s) {
+            System.out.println(s);
+        }
+    };
+    
+    // Lambda 表达式
+    Consumer<String> c2 = s -> System.out.println(s);
+    
+    c1.accept("Hello"); // 输出: Hello
+    c2.accept("World"); // 输出: World
+    ```
+
+- `Supplier<T>`: 无参数，返回一个值。
+
+  - **作用**：`Supplier<T>` 接口表示一个供应商，不接受任何参数，但会返回一个类型为 `T` 的结果。常用于需要获取某个对象实例的场景，例如生成随机数、创建新对象等。
+
+- `Function<T, R>`: 接受一个参数，返回一个值。
+
+  - **作用**：`Function<T, R>` 接口表示接受一个类型为 `T` 的输入参数，并返回一个类型为 `R` 的结果。它常用于对输入数据进行转换处理，例如将字符串转换为整数、将对象转换为另一种对象等。
+
+  - ```java
+    // 传统方式：匿名内部类
+    Function<Integer, String> f1 = new Function<Integer, String>() {
+        @Override
+        public String apply(Integer num) {
+            return "Number: " + num;
+        }
+    };
+    
+    // Lambda 表达式
+    Function<Integer, String> f2 = num -> "Number: " + num;
+    
+    System.out.println(f1.apply(10)); // 输出: Number: 10
+    System.out.println(f2.apply(20)); // 输出: Number: 20
+    ```
+
+- `Predicate<T>`: 接受一个参数，返回布尔值。
+
+  - **作用**：`Predicate<T>` 接口表示接受一个类型为 `T` 的输入参数，并返回一个布尔值。它常用于对输入数据进行条件判断，例如筛选列表中的元素、验证数据的有效性等。
+
+  - ```java
+    // 传统方式：匿名内部类
+    Predicate<Integer> p1 = new Predicate<Integer>() {
+        @Override
+        public boolean test(Integer num) {
+            return num > 0;
+        }
+    };
+    
+    // Lambda 表达式
+    Predicate<Integer> p2 = num -> num > 0;
+    
+    System.out.println(p1.test(10)); // 输出: true
+    System.out.println(p2.test(-5)); // 输出: false
+    ```
+
+多参数lambda表达式
+
+```java
+// 传统方式：匿名内部类
+BiFunction<Integer, Integer, Integer> add1 = new BiFunction<Integer, Integer, Integer>() {
+    @Override
+    public Integer apply(Integer a, Integer b) {
+        return a + b;
+    }
+};
+
+// Lambda 表达式
+BiFunction<Integer, Integer, Integer> add2 = (a, b) -> a + b;
+
+System.out.println(add1.apply(5, 3)); // 输出: 8
+System.out.println(add2.apply(10, 20)); // 输出: 30
+```
 

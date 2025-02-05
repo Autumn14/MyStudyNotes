@@ -1299,3 +1299,218 @@ CAS 操作存在 ABA 问题。
 非阻塞算法在高并发场景下性能优势明显，但在低并发场景下，由于不断地进行 CAS 操作（CAS 操作虽然是原子的，但也有一定的开销），其性能可能不如简单的基于锁的算法。
 
 例如，在一个只有少量线程访问共享资源的系统中，使用非阻塞算法可能会因为频繁的 CAS 尝试而浪费资源。
+
+## 15.springboot实现线程池
+
+在 Spring Boot 中实现线程池可以通过 `ThreadPoolTaskExecutor` 或直接使用 Java 的 `ExecutorService` 来实现。Spring Boot 提供了对线程池的良好支持，可以方便地配置和管理线程池。
+
+------
+
+### **1. 使用 `ThreadPoolTaskExecutor` 实现线程池**
+
+`ThreadPoolTaskExecutor` 是 Spring 提供的一个线程池实现，适合在 Spring Boot 项目中使用。
+
+#### **步骤 1：配置线程池**
+
+在 Spring Boot 的配置类中定义线程池 Bean。
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+
+@Configuration
+public class ThreadPoolConfig {
+
+    @Bean(name = "taskExecutor")
+    public ThreadPoolTaskExecutor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        // 核心线程数
+        executor.setCorePoolSize(5);
+        // 最大线程数
+        executor.setMaxPoolSize(10);
+        // 队列容量
+        executor.setQueueCapacity(20);
+        // 线程名前缀
+        executor.setThreadNamePrefix("Async-");
+        // 拒绝策略
+        executor.setRejectedExecutionHandler(new java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy());
+        // 初始化
+        executor.initialize();
+        return executor;
+    }
+}
+```
+
+#### **步骤 2：使用线程池**
+
+在需要异步执行的方法上使用 `@Async` 注解，并指定线程池 Bean 名称。
+
+```java
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+@Service
+public class MyService {
+
+    @Async("taskExecutor") // 指定线程池 Bean 名称
+    public void asyncTask() {
+        System.out.println("异步任务开始执行，线程名称：" + Thread.currentThread().getName());
+        try {
+            Thread.sleep(5000); // 模拟耗时操作
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("异步任务执行完成，线程名称：" + Thread.currentThread().getName());
+    }
+}
+```
+
+#### **步骤 3：启用异步支持**
+
+在 Spring Boot 启动类或配置类上添加 `@EnableAsync` 注解。
+
+```java
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
+
+@SpringBootApplication
+@EnableAsync // 启用异步支持
+public class MyApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
+    }
+}
+```
+
+#### **步骤 4：测试线程池**
+
+在 Controller 中调用异步方法。
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class MyController {
+
+    @Autowired
+    private MyService myService;
+
+    @GetMapping("/runAsyncTask")
+    public String runAsyncTask() {
+        myService.asyncTask();
+        return "异步任务已启动";
+    }
+}
+```
+
+访问 `/runAsyncTask` 接口，可以看到异步任务在后台线程池中执行。
+
+------
+
+### **2. 使用 Java 的 `ExecutorService` 实现线程池**
+
+如果不依赖 Spring 的线程池管理，可以直接使用 Java 的 `ExecutorService`。
+
+#### **步骤 1：创建线程池**
+
+在 Service 中创建线程池。
+
+```java
+import org.springframework.stereotype.Service;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+@Service
+public class MyService {
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+
+    public void asyncTask() {
+        executorService.submit(() -> {
+            System.out.println("异步任务开始执行，线程名称：" + Thread.currentThread().getName());
+            try {
+                Thread.sleep(5000); // 模拟耗时操作
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("异步任务执行完成，线程名称：" + Thread.currentThread().getName());
+        });
+    }
+}
+```
+
+#### **步骤 2：测试线程池**
+
+在 Controller 中调用异步方法。
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class MyController {
+
+    @Autowired
+    private MyService myService;
+
+    @GetMapping("/runAsyncTask")
+    public String runAsyncTask() {
+        myService.asyncTask();
+        return "异步任务已启动";
+    }
+}
+```
+
+------
+
+### **3. 线程池配置参数说明**
+
+| 参数                       | 说明                                                         |
+| :------------------------- | :----------------------------------------------------------- |
+| `corePoolSize`             | 核心线程数，线程池中始终保持的线程数量。                     |
+| `maxPoolSize`              | 最大线程数，线程池中允许的最大线程数量。                     |
+| `queueCapacity`            | 任务队列容量，当线程数达到核心线程数时，新任务会放入队列中等待执行。 |
+| `threadNamePrefix`         | 线程名前缀，方便日志跟踪。                                   |
+| `rejectedExecutionHandler` | 拒绝策略，当线程池和队列都满时如何处理新任务。               |
+
+------
+
+### **4. 拒绝策略**
+
+| 策略名称              | 说明                                             |
+| :-------------------- | :----------------------------------------------- |
+| `AbortPolicy`         | 直接抛出异常（默认策略）。                       |
+| `CallerRunsPolicy`    | 由调用线程执行该任务。                           |
+| `DiscardPolicy`       | 直接丢弃任务，不抛出异常。                       |
+| `DiscardOldestPolicy` | 丢弃队列中最旧的任务，然后尝试重新提交当前任务。 |
+
+------
+
+### **5. 注意事项**
+
+1. **线程池资源释放**：
+   - 如果使用 `ExecutorService`，需要在应用关闭时手动关闭线程池。
+   - 使用 `ThreadPoolTaskExecutor` 时，Spring 会自动管理线程池的生命周期。
+2. **线程池大小设置**：
+   - 根据任务类型（CPU 密集型或 IO 密集型）合理设置线程池大小。
+   - CPU 密集型任务：线程数 ≈ CPU 核心数。
+   - IO 密集型任务：线程数 ≈ CPU 核心数 * 2。
+3. **异步方法的返回值**：
+   - 如果需要获取异步方法的返回值，可以使用 `Future` 或 `CompletableFuture`。
+
+------
+
+### **总结**
+
+在 Spring Boot 中实现线程池有两种主要方式：
+
+1. 使用 `ThreadPoolTaskExecutor`，适合与 Spring 集成，支持配置化和声明式使用。
+2. 使用 Java 的 `ExecutorService`，适合不依赖 Spring 的场景。
+
+通过合理配置线程池参数和拒绝策略，可以提升应用的并发处理能力和稳定性。
